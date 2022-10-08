@@ -2,6 +2,8 @@ package rest.payroll;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,7 +51,7 @@ class EmployeeController {
     }
 
     @GetMapping("/employees/{id}")
-    EntityModel one(@PathVariable Long id) {
+    EntityModel<Employee> one(@PathVariable Long id) {
 
         /*
         return repository.findById(id)
@@ -86,27 +88,48 @@ class EmployeeController {
     }
 
     @PostMapping("/employees")
-    Employee newEmployee(@RequestBody Employee newEmployee) {
-        return repository.save(newEmployee);
+    ResponseEntity<?> newEmployee(@RequestBody Employee newEmployee) {
+        EntityModel<Employee> entityModel = assembler.toModel(repository.save(newEmployee));
+        return ResponseEntity
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(entityModel);
     }
 
     @PutMapping("/employees/{id}")
-    Employee replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
-        return repository.findById(id)
+    ResponseEntity<?> replaceEmployee(@RequestBody Employee newEmployee, @PathVariable Long id) {
+//        return repository.findById(id)
+//                .map(employee -> {
+//                    employee.setName(newEmployee.getName());
+//                    employee.setId(newEmployee.getId());
+//                    return repository.save(employee);
+//                })
+//                .orElseGet(() -> {
+//                    newEmployee.setId(id);
+//                    return repository.save(newEmployee);
+//                });
+
+        Employee updatedEmployee = repository.findById(id)
                 .map(employee -> {
                     employee.setName(newEmployee.getName());
-                    employee.setId(newEmployee.getId());
+                    employee.setRole(newEmployee.getRole());
                     return repository.save(employee);
                 })
                 .orElseGet(() -> {
                     newEmployee.setId(id);
                     return repository.save(newEmployee);
                 });
+
+        EntityModel<Employee> entityModel = assembler.toModel(updatedEmployee);
+
+        return ResponseEntity
+                .created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(entityModel);
     }
 
     @DeleteMapping("/employees/{id}")
-    void deleteEmployee(@PathVariable Long id) {
+    ResponseEntity<?> deleteEmployee(@PathVariable Long id) {
         repository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

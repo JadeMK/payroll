@@ -20,8 +20,8 @@ class LoadDatabase {
 
         return args -> {
             // Create two entities and store them
-            log.info("Preloading " + repository.save(new Employee("Bilbo Baggins", "burglar")));
-            log.info("Preloading " + repository.save(new Employee("Frodo Baggins", "thief")));
+            log.info("Preloading " + repository.save(new Employee("Bilbo", "Baggins", "burglar")));
+            log.info("Preloading " + repository.save(new Employee("Frodo", "Baggins", "thief")));
 
             // Preloading Employee{id=1, name='Bilbo Baggins', role='burglar'} ¯\_(ツ)_/¯
             // Preloading Employee{id=2, name='Frodo Baggins', role='thief'}
