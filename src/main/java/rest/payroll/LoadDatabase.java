@@ -15,16 +15,26 @@ class LoadDatabase {
 
     // Spring Boot will run all CLR Beans once the application is loaded
     @Bean
-    CommandLineRunner initDatabase(EmployeeRepository repository) {
+    CommandLineRunner initDatabase(EmployeeRepository employeeRepository, OrderRepository orderRepository) {
         // It will request a copy of the repository I created
 
         return args -> {
             // Create two entities and store them
-            log.info("Preloading " + repository.save(new Employee("Bilbo", "Baggins", "burglar")));
-            log.info("Preloading " + repository.save(new Employee("Frodo", "Baggins", "thief")));
+            log.info("Preloading " + employeeRepository.save(new Employee("Bilbo", "Baggins", "burglar")));
+            log.info("Preloading " + employeeRepository.save(new Employee("Frodo", "Baggins", "thief")));
 
             // Preloading Employee{id=1, name='Bilbo Baggins', role='burglar'} ¯\_(ツ)_/¯
             // Preloading Employee{id=2, name='Frodo Baggins', role='thief'}
+
+            employeeRepository.findAll().forEach(employee -> log.info("Preloaded " + employee));
+
+
+            orderRepository.save(new Order("MacBook Pro", Status.COMPLETED));
+            orderRepository.save(new Order("iPhone", Status.IN_PROGRESS));
+
+            orderRepository.findAll().forEach(order -> {
+                log.info("Preloaded " + order);
+            });
         };
     }
 
